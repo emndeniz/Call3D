@@ -3,6 +3,7 @@ package com.emndeniz.rtc.call3d;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -36,6 +37,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +100,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         mAuth = FirebaseAuth.getInstance();
+
+        mEmailView.setText("user1@emin.com");
+        mPasswordView.setText("123456");
     }
 
     private void populateAutoComplete() {
@@ -213,6 +222,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private void updateUI(FirebaseUser user) {
 
         //TODO Will implement moving to next activity in here
+
+        if(user != null){
+            //TODO save user info
+            Intent intent = new Intent(this,MainNavigationActivity.class);
+            startActivity(intent);
+        }else{
+            Toast.makeText(this,"Login Failed",Toast.LENGTH_LONG).show();
+        }
+
+
+       /* DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference usersdRef = rootRef.child("sR5BFwY3w7MVq6zzk07v");
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    String name = ds.child("name").getValue(String.class);
+                    Log.d("TAG", name);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG,"error");
+            }
+        };
+        usersdRef.addListenerForSingleValueEvent(eventListener);*/
     }
 
     private boolean isEmailValid(String email) {
