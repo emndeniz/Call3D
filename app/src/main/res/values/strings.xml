@@ -23,4 +23,11 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <string name="shared_pref_key">call3d_shared_pref_key</string>
+    <string name="fire_base_token">fire_base_token</string>
+    <string name="user_name">user_name</string>
+    <string name="fire_base_app_topic_key">call3DTopic</string>
+    <string name="fire_base_user_topic">fire_base_user_topic</string>
 </resources>

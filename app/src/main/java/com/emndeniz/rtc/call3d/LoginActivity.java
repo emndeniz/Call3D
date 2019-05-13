@@ -1,24 +1,21 @@
 package com.emndeniz.rtc.call3d;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
+import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -32,16 +29,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.emndeniz.rtc.call3d.utils.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -193,12 +188,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
 
-            sendLoginRequestToFirebase(email, password);
+            sendLoginRequestToFireBase(email, password);
 
         }
     }
 
-    private void sendLoginRequestToFirebase(String email, String password) {
+    /**
+     * Sends login request to FireBase
+     * @param email email address of user
+     * @param password password
+     */
+    private void sendLoginRequestToFireBase(final String email, String password) {
+        Log.d(TAG,"sendLoginRequestToFireBase, email:" + email + ", password:" + password);
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -206,8 +207,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 if (task.isSuccessful()) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success");
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    updateUI(user);
+                    updateUI(email);
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -219,36 +219,56 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         });
     }
 
-    private void updateUI(FirebaseUser user) {
+    /**
+     * Saves userName and topic to shared preferences
+     * @param userName  User name
+     */
+    private void saveCurrentUserAndTopicToSharedPref(String userName){
+        SharedPreferences sharedPref = getSharedPreferences(getResources().getString(R.string.shared_pref_key),0);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(getString(R.string.user_name), userName);
 
-        //TODO Will implement moving to next activity in here
+        String userTopic = Utils.getFireBaseUserTopicFormat(getString(R.string.fire_base_app_topic_key),userName);
+        editor.putString(getString(R.string.fire_base_user_topic),userTopic);
+        editor.apply();
+    }
 
-        if(user != null){
-            //TODO save user info
-            Intent intent = new Intent(this,MainNavigationActivity.class);
-            startActivity(intent);
-        }else{
-            Toast.makeText(this,"Login Failed",Toast.LENGTH_LONG).show();
+    /**
+     * Subscribe Fire Base topic for given user name
+     */
+    private void subscribeFireBaseTopic(){
+
+
+        SharedPreferences sharedPref = this.getSharedPreferences(getResources().getString(R.string.shared_pref_key), Context.MODE_PRIVATE);
+        final String userTopic = sharedPref.getString(getResources().getString(R.string.fire_base_user_topic),null);
+        if(userTopic == null){
+            Log.e(TAG, "Can not register to null topic");
+            return;
         }
 
-
-       /* DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference usersdRef = rootRef.child("sR5BFwY3w7MVq6zzk07v");
-        ValueEventListener eventListener = new ValueEventListener() {
+        FirebaseMessaging.getInstance().subscribeToTopic(userTopic)
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Subscribe to topic failed for topic " + userTopic + ", error:" + e.getLocalizedMessage());
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    String name = ds.child("name").getValue(String.class);
-                    Log.d("TAG", name);
-                }
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG,"Subscribe success for topic " + userTopic);
             }
+        });
+    }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG,"error");
-            }
-        };
-        usersdRef.addListenerForSingleValueEvent(eventListener);*/
+    private void updateUI(String userName) {
+        if(userName == null || userName.isEmpty()){
+            Toast.makeText(this,"Login Failed",Toast.LENGTH_LONG).show();
+        }else{
+            saveCurrentUserAndTopicToSharedPref(userName);
+            subscribeFireBaseTopic();
+            Intent intent = new Intent(this,MainNavigationActivity.class);
+            startActivity(intent);
+        }
     }
 
     private boolean isEmailValid(String email) {

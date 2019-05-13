@@ -22,6 +22,8 @@ public class MainNavigationActivity extends AppCompatActivity
         HomeFragment.OnFragmentInteractionListener,
         SettingsFragment.OnListFragmentInteractionListener{
 
+    private final String LOG_TAG = "MainNavigationActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

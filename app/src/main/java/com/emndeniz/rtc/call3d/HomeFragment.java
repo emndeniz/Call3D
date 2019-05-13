@@ -1,21 +1,17 @@
 package com.emndeniz.rtc.call3d;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
+import com.emndeniz.rtc.call3d.pushservice.FireBaseNotificationSender;
+import com.emndeniz.rtc.call3d.utils.Utils;
 
 
 /**
@@ -82,12 +78,13 @@ public class HomeFragment extends Fragment {
         remoteUserToCall = rootView.findViewById(R.id.remote_user_address);
         callButton = rootView.findViewById(R.id.call_button);
 
+        // Debug purpose
         remoteUserToCall.setText("user2@emin.com");
 
         callButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                initateCall();
+                initateCall(remoteUserToCall.getText().toString());
             }
         });
 
@@ -96,23 +93,14 @@ public class HomeFragment extends Fragment {
         return rootView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
-    private void initateCall(){
+    private void initateCall(String userName){
 
-        FirebaseDatabase.getInstance()
-                .getReference()
-                .push()
-                .setValue("Heyyy",
-                        FirebaseAuth.getInstance()
-                                .getCurrentUser()
-                                .getDisplayName());
 
+        //TODO optimize call notification
+        String fireBaseTopic = getResources().getString(R.string.fire_base_app_topic_key);
+        String userTopic = Utils.getFireBaseUserTopicFormat(fireBaseTopic,userName);
+        FireBaseNotificationSender.newInstance().sendCallNotification(userTopic,userName,userTopic,getActivity());
 
     }
 
