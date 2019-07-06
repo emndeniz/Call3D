@@ -1,6 +1,8 @@
 package com.emndeniz.rtc.call3d;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,8 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.emndeniz.rtc.call3d.pushservice.FireBaseNotificationSender;
-import com.emndeniz.rtc.call3d.utils.Utils;
+import com.emndeniz.rtc.call3d.services.CallService;
 
 
 /**
@@ -89,19 +90,32 @@ public class HomeFragment extends Fragment {
         });
 
 
-
+        CallService.getInstance(getActivity());
         return rootView;
     }
 
 
     private void initateCall(String userName){
 
+        CallFragment callFragment = CallFragment.newInstance(userName,true,null);
+       // Bundle bundle = new Bundle();
+        //bundle.putBoolean(getString(R.string.is_outgoing_call_flag),true);
+        //callFragment.setArguments(bundle);
+        replaceFragment(callFragment);
 
         //TODO optimize call notification
-        String fireBaseTopic = getResources().getString(R.string.fire_base_app_topic_key);
+       /* String fireBaseTopic = getResources().getString(R.string.fire_base_app_topic_key);
         String userTopic = Utils.getFireBaseUserTopicFormat(fireBaseTopic,userName);
-        FireBaseNotificationSender.newInstance().sendCallNotification(userTopic,userName,userTopic,getActivity());
+        FireBaseNotificationSender.newInstance().sendCallNotification(userTopic,userName,userTopic,getActivity());*/
 
+    }
+
+    private void replaceFragment(Fragment fragment){
+        FragmentManager manager = getFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.replace(R.id.main_fragment_container,fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     @Override

@@ -30,4 +30,8 @@
     <string name="user_name">user_name</string>
     <string name="fire_base_app_topic_key">call3DTopic</string>
     <string name="fire_base_user_topic">fire_base_user_topic</string>
+    <string name="end_call_button_tag">End Call</string>
+
+    <string name="is_outgoing_call_flag">is_outgoing_call_flag</string>
+    <string name="remote_sdp">remote_sdp</string>
 </resources>

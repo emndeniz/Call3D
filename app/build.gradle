@@ -16,6 +16,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -34,5 +39,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:17.5.0'
 
     implementation 'com.android.volley:volley:1.1.1'
+
+    //implementation project(":webrtc3dcall")
+    implementation 'org.webrtc:google-webrtc:1.0.26405'
 }
 apply plugin: 'com.google.gms.google-services'

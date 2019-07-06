@@ -17,8 +17,12 @@ import android.util.Log;
 
 import com.emndeniz.rtc.call3d.MainNavigationActivity;
 import com.emndeniz.rtc.call3d.R;
+import com.emndeniz.rtc.call3d.services.CallService;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Random;
 
@@ -39,7 +43,29 @@ public class Call3DFirebaseInstanceIDService  extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
+        //TODO will change this with JSON format
         Log.d(LOG_TAG, "onMessageReceived, data:" + remoteMessage.getData() );
+        CallService callService = CallService.getInstance(getApplication());
+        String message = remoteMessage.getData().get("message");
+        String remoteUser = remoteMessage.getData().get("title").substring(6);
+        Log.d(LOG_TAG,"Message Received from user " + remoteUser);
+        if(remoteMessage.getData().get("title").startsWith("OFFER")){
+            Log.d(LOG_TAG,"Offer received");
+            callService.incomingCallReceived(message,remoteUser);
+        }else if(remoteMessage.getData().get("title").startsWith("ANSWER")){
+            Log.d(LOG_TAG,"Answer received");
+            callService.answerReceived(message);
+        }else if(remoteMessage.getData().get("title").startsWith("CANDIDATE")){
+            Log.d(LOG_TAG,"Candidate received");
+            try {
+                JSONObject jsonObject = new JSONObject(message);
+                callService.addRemoteIceCandidates(jsonObject);
+            } catch (JSONException e) {
+                Log.d(LOG_TAG,"onMessageReceived, failed to create Json , e:" + e);
+            }
+
+        }
+
         //createLocalNotification(remoteMessage);
     }
 

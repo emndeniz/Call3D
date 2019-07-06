@@ -20,7 +20,8 @@ import com.emndeniz.rtc.call3d.dummy.DummyContent;
 public class MainNavigationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener ,
         HomeFragment.OnFragmentInteractionListener,
-        SettingsFragment.OnListFragmentInteractionListener{
+        SettingsFragment.OnListFragmentInteractionListener,
+        CallFragment.OnFragmentInteractionListener{
 
     private final String LOG_TAG = "MainNavigationActivity";
 

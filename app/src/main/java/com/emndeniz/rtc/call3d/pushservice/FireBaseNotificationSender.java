@@ -38,18 +38,34 @@ public class FireBaseNotificationSender {
         return mInstance;
     }
 
-    public void sendCallNotification(String userTopic, String title, String message, Context context){
+    public void sendCallNotification(String userTopic, String title, String sdp, Context context){
 
         JSONObject notification = new JSONObject();
         JSONObject notifcationBody = new JSONObject();
         try {
             notifcationBody.put("title", title);
-            notifcationBody.put("message", message);
+            notifcationBody.put("message", sdp);
 
             notification.put("to", "/topics/" + userTopic);
             notification.put("data", notifcationBody);
         } catch (JSONException e) {
-            Log.e(LOG_TAG, "onCreate: " + e.getMessage() );
+            Log.e(LOG_TAG, "sendCallNotification: " + e.getMessage() );
+        }
+        sendNotification(notification,context);
+    }
+
+    public void sendCandidate(String userTopic, String title, JSONObject candidates, Context context){
+
+        JSONObject notification = new JSONObject();
+        JSONObject notifcationBody = new JSONObject();
+        try {
+            notifcationBody.put("title", title);
+            notifcationBody.put("message", candidates.toString());
+
+            notification.put("to", "/topics/" + userTopic);
+            notification.put("data", notifcationBody);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "sendCandidate: " + e.getMessage() );
         }
         sendNotification(notification,context);
     }
@@ -79,7 +95,7 @@ public class FireBaseNotificationSender {
             }
         };
 
-        Log.e(LOG_TAG,"sendNotification: " + jsonObjectRequest.toString());
+        Log.d(LOG_TAG,"sendNotification: " + jsonObjectRequest.toString());
         VolleySingleton.getInstance(context).addToRequestQueue(jsonObjectRequest);
     }
 
