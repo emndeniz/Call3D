@@ -1,0 +1,9 @@
+{
+  "from":"emin1",
+  "to":"emin2",
+  "notificationType":"callNotification",
+  "callNotification":{
+    "callNotificationType":"callStartOffer",
+    "sdp":"sdp"
+  }
+}

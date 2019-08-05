@@ -1,0 +1,13 @@
+{
+  "from": "emin1",
+  "to": "emin2",
+  "notificationType": "callNotification",
+  "callNotification": {
+    "callNotificationType": "callCandidate",
+    "callCandidate": {
+      "candidateMLineIndex": "mLineIndex",
+      "candidateId": "id",
+      "candidateSDP": "sdp"
+    }
+  }
+}
