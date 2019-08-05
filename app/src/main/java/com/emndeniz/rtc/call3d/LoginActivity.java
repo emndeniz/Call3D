@@ -68,6 +68,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        Utils.setAppContext(getApplicationContext());
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
         populateAutoComplete();
@@ -228,7 +230,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(getString(R.string.user_name), userName);
 
-        String userTopic = Utils.getFireBaseUserTopicFormat(getString(R.string.fire_base_app_topic_key),userName);
+        String userTopic = Utils.getFireBaseUserTopicFormat(userName);
         editor.putString(getString(R.string.fire_base_user_topic),userTopic);
         editor.apply();
     }

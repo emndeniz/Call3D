@@ -10,8 +10,6 @@ import com.emndeniz.rtc.call3d.CallFragment;
 import com.emndeniz.rtc.call3d.R;
 import com.emndeniz.rtc.call3d.webrtc.PeerConnectionClient;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.webrtc.IceCandidate;
 import org.webrtc.SessionDescription;
 
@@ -58,25 +56,9 @@ public class CallService {
         Log.d(LOG_TAG,"answerReceived");
         peerConnectionClient.setRemoteDescription(sdp, SessionDescription.Type.ANSWER);
     }
-    public void addRemoteIceCandidates(JSONObject jsonCandidate){
+    public void addRemoteIceCandidates(IceCandidate iceCandidate){
         Log.d(LOG_TAG,"addRemoteIceCandidates");
-        try {
-            IceCandidate candidate = new IceCandidate(jsonCandidate.getString("id"),jsonCandidate.getInt("label"),jsonCandidate.getString("candidate"));
-            if(peerConnectionClient == null) {
-                queedCandidates.add(candidate);
-                Log.w(LOG_TAG,"peer connection hasn't been established yet, adding Ice candidates to queue");
-                return;
-            }
+        peerConnectionClient.onIceCandidate(iceCandidate);
 
-            if(queedCandidates.size() > 0) {
-                for (IceCandidate iceCandidate : queedCandidates){
-                    peerConnectionClient.onIceCandidate(iceCandidate);
-                }
-                queedCandidates.clear();
-            }
-            peerConnectionClient.onIceCandidate(candidate);
-        } catch (JSONException e) {
-            Log.e(LOG_TAG,"answerReceived, failed to parse JSON, e:" + e);
-        }
     }
 }

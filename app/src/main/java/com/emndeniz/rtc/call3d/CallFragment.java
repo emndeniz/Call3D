@@ -17,8 +17,6 @@ import com.emndeniz.rtc.call3d.utils.Utils;
 import com.emndeniz.rtc.call3d.webrtc.PeerConnectionClient;
 import com.emndeniz.rtc.call3d.webrtc.WebRTCClient;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.webrtc.Camera2Enumerator;
 import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
@@ -50,7 +48,7 @@ public class CallFragment extends Fragment implements WebRTCClient.PeerConnectio
     private static final String REMOTE_SDP = "remoteSDP"; // TODO: Move it to call service
 
 
-    public static final String EXTRA_CAMERA2 = "org.appspot.apprtc.CAMERA2";
+
 
     private String remoteUserName;
     private boolean isOutGoingCall;
@@ -151,7 +149,7 @@ public class CallFragment extends Fragment implements WebRTCClient.PeerConnectio
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
+     * @param remoteUser Parameter 1.
      * @return A new instance of fragment CallFragment.
      */
     // TODO: Rename and change types and number of parameters
@@ -253,44 +251,20 @@ public class CallFragment extends Fragment implements WebRTCClient.PeerConnectio
         return sharedPref.getString(getResources().getString(R.string.user_name),null);
     }
     private void sendCallRequest(String sdp){
-
-        String fireBaseTopic = getResources().getString(R.string.fire_base_app_topic_key);
-        String userTopic = Utils.getFireBaseUserTopicFormat(fireBaseTopic, remoteUserName);
-        Log.d(LOG_TAG, "Sending sdp to remote : " + remoteUserName);
-        String title = "OFFER-" + getLocalUserName();
-        FireBaseNotificationSender.newInstance().sendCallNotification(userTopic,title,sdp,getActivity());
+        FireBaseNotificationSender.newInstance().sendCallStartNotification(remoteUserName,sdp,getActivity());
     }
     private void sendAnswer(String sdp){
-        String fireBaseTopic = getResources().getString(R.string.fire_base_app_topic_key);
-        String userTopic = Utils.getFireBaseUserTopicFormat(fireBaseTopic,remoteUserName);
         Log.d(LOG_TAG, "Sending sdp to remote : " + remoteUserName);
-        String title = "ANSWER-" + getLocalUserName();
-        FireBaseNotificationSender.newInstance().sendCallNotification(userTopic,title,sdp,getActivity());
+        FireBaseNotificationSender.newInstance().sendCallAnswerNotification(remoteUserName,sdp,getActivity());
     }
 
     private void sendIceCandidate(IceCandidate candidate){
-        JSONObject jsonObject = new JSONObject();
-
-        try {
-            jsonObject.put("label",candidate.sdpMLineIndex);
-            jsonObject.put("id",candidate.sdpMid);
-            jsonObject.put("candidate",candidate.sdp);
-        } catch (JSONException e) {
-           Log.e(LOG_TAG,"failed to create candidate, e:" + e);
-        }
-
-
-
-        String fireBaseTopic = getResources().getString(R.string.fire_base_app_topic_key);
-        String userTopic = Utils.getFireBaseUserTopicFormat(fireBaseTopic,remoteUserName);
         Log.d(LOG_TAG, "Sending candidate to remote : " + remoteUserName);
-
-        String title = "CANDIDATE-" + getLocalUserName();
-        FireBaseNotificationSender.newInstance().sendCandidate(userTopic,title,jsonObject,getActivity());
+        FireBaseNotificationSender.newInstance().sendCandidate(remoteUserName,candidate,getActivity());
     }
 
     private boolean useCamera2() {
-        return Camera2Enumerator.isSupported(getActivity()) && getActivity().getIntent().getBooleanExtra(EXTRA_CAMERA2, true);
+        return Camera2Enumerator.isSupported(getActivity()) && getActivity().getIntent().getBooleanExtra(Utils.EXTRA_CAMERA2, true);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
